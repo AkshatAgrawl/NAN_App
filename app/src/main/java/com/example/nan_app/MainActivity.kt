@@ -18,7 +18,6 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
@@ -32,11 +31,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -45,13 +41,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.example.nan_app.ui.theme.Nan_appTheme
 
 enum class NanMode {
     PUBLISH,
@@ -149,7 +142,7 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var permissionLauncher: ActivityResultLauncher<Array<String>>
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -172,8 +165,6 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-
-        // Check + launch for missing permissions
         requestPermissionsIfNeeded()
     }
     override fun onStart() {
@@ -233,7 +224,7 @@ class MainActivity : ComponentActivity() {
 class NanSessionHelper(
     private val context: Context,
     private val wifiAwareManager: WifiAwareManager,
-    private val onMacAvailable: (String) -> Unit,
+    private val onMacAvailable: (ByteArray) -> Unit,
     private val onSessionReady: (WifiAwareSession) -> Unit,
     private val onFailed: () -> Unit
 ) {
@@ -263,8 +254,7 @@ class NanSessionHelper(
         }, object : IdentityChangedListener() {
             override fun onIdentityChanged(mac: ByteArray?) {
                 mac?.let {
-                    val macString = it.joinToString(":") { byte -> "%02X".format(byte) }
-                    onMacAvailable(macString)
+                    onMacAvailable(it)
                 }
             }
         }, null)
